@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Web-monitoring{% endblock %}
+{% block content %}
+    Web monitoring - это веб-сервис для мониторинга сайтов, который принимает на вход список URL-адресов и проверяет их доступность в некотором интервале.
+    <br>
+    <br>
+    {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'make_request' %}">
+            {% csrf_token %}
+            <a>Введите адрес сайта (ссылку)</a>
+            <input name="link" type="text">
+            <input type="hidden" name="user" value="{{ request.user.id }}">
+            <button type="submit">Проверить</button>
+        </form>
+        <br>
+        {% if request.user.account.links.all|length != 0 %}
+            <h4>Мои ссылки:</h4>
+        {% endif %}
+        {% for link in request.user.account.links.all %}
+            {{ link.link }} | Ответ запроса: {{ link.response }} | Финальная ссылка: {{ link.finish_link }} | Последняя проверка: {{ link.last_check_time }}<br>
+
+            {% if link.rest_text|length != 0 %}
+                Текст ответа: <br> {{ link.resp_text }}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        Сначала необходимо <a href="{% url 'login' %}">войти</a> или <a href="{% url 'register' %}">зарегестрироваться</a>.
+    {% endif %}
+{% endblock %}
